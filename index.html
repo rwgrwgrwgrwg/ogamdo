@@ -4,56 +4,93 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>채팅 앱</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
+  
+  <!-- Firebase 모듈 방식으로 로드 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getStorage } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+
+    // Firebase 설정
+    const firebaseConfig = {
+      apiKey: "AIzaSyA1O1mJelZT2uZH0308xe3IGNMicJQQQok",
+      authDomain: "ogamdo-131e5.firebaseapp.com",
+      projectId: "ogamdo-131e5",
+      storageBucket: "ogamdo-131e5.firebasestorage.app",
+      messagingSenderId: "662198194109",
+      appId: "1:662198194109:web:277064ed01fb3c64b4ccd4",
+      measurementId: "G-NJQLPC7KJS"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUserName = ""; // 여기서 초기화
+
+    // 채팅 시작 함수
+    function startChat() {
+      const username = document.getElementById("username").value;
+      if (username.trim() !== "") {
+        currentUserName = username; // 사용자명 저장
+        document.getElementById("username-container").style.display = 'none';
+        document.getElementById("chat-container").style.display = 'block';
+        loadMessages();
+      } else {
+        alert("사용자명을 입력해주세요.");
+      }
     }
-    #chat-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
+
+    // 메시지 전송 함수
+    async function sendMessage() {
+      const message = document.getElementById("chat-input").value;
+      if (message.trim() !== "") {
+        try {
+          await addDoc(collection(db, 'messages'), {
+            username: currentUserName,
+            message: message,
+            timestamp: new Date().toISOString() // firestore timestamp
+          });
+          document.getElementById("chat-input").value = ''; // 입력칸 비우기
+          loadMessages(); // 새로 고침
+        } catch (error) {
+          console.error("메시지 전송 오류:", error);
+        }
+      }
     }
-    .chat-message {
-      margin: 5px;
-      padding: 5px;
-      border-radius: 5px;
-      background-color: #f1f1f1;
+
+    // 메시지 로드 함수
+    async function loadMessages() {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'messages'));
+        const messagesContainer = document.getElementById("messages");
+        messagesContainer.innerHTML = '';
+        querySnapshot.forEach(doc => {
+          const messageData = doc.data();
+          const messageElement = document.createElement('div');
+          messageElement.classList.add('chat-message');
+          messageElement.innerHTML = `<span class="username">${messageData.username}:</span> ${messageData.message}`;
+          messagesContainer.appendChild(messageElement);
+        });
+      } catch (error) {
+        console.error("메시지 로드 오류:", error);
+      }
     }
-    #message-box {
-      position: fixed;
-      bottom: 10px;
-      left: 20px;
-      right: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px;
-      background-color: #fff;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+    // 이모지 토글 함수
+    function toggleEmoji() {
+      const emojiContainer = document.getElementById("emoji-container");
+      emojiContainer.style.display = emojiContainer.style.display === 'block' ? 'none' : 'block';
     }
-    #chat-input {
-      width: 80%;
-      padding: 8px;
-      border-radius: 5px;
-      border: 1px solid #ddd;
+
+    // 이모지 삽입 함수
+    function insertEmoji(emojiName) {
+      const emojiInput = document.getElementById("chat-input");
+      emojiInput.value += `<img src="${emojiName}.jpg" class="emoji">`; // 이모지 삽입
+      toggleEmoji(); // 이모지 선택창 숨기기
     }
-    .emoji {
-      width: 30px;
-      height: 30px;
-      cursor: pointer;
-      margin-left: 10px;
-    }
-  </style>
+  </script>
 </head>
 <body>
 
@@ -79,79 +116,5 @@
     </div>
   </div>
 
-  <script>
-    // Firebase 설정
-    const firebaseConfig = {
-      apiKey: "AIzaSyA1O1mJelZT2uZH0308xe3IGNMicJQQQok",
-      authDomain: "ogamdo-131e5.firebaseapp.com",
-      projectId: "ogamdo-131e5",
-      storageBucket: "ogamdo-131e5.firebasestorage.app",
-      messagingSenderId: "662198194109",
-      appId: "1:662198194109:web:277064ed01fb3c64b4ccd4",
-      measurementId: "G-NJQLPC7KJS"
-    };
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    let currentUserName = ""; // 여기에 변수를 먼저 선언합니다.
-
-    // 채팅 시작 함수
-    function startChat() {
-      const username = document.getElementById("username").value;
-      console.log("사용자명 입력:", username); // 디버깅용
-      if (username.trim() !== "") {
-        currentUserName = username;
-        document.getElementById("username-container").style.display = 'none';
-        document.getElementById("chat-container").style.display = 'block';
-        console.log("채팅 UI 표시됨."); // 디버깅용
-        loadMessages();
-      } else {
-        alert("사용자명을 입력해주세요.");
-      }
-    }
-
-    // 메시지 전송 함수
-    async function sendMessage() {
-      const message = document.getElementById("chat-input").value;
-      if (message.trim() !== "") {
-        console.log("메시지 전송:", message); // 디버깅용
-        await db.collection('messages').add({
-          username: currentUserName,
-          message: message,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        document.getElementById("chat-input").value = ''; // 입력칸 비우기
-        loadMessages();
-      }
-    }
-
-    // 메시지 로드 함수
-    async function loadMessages() {
-      console.log("메시지 로드 시작"); // 디버깅용
-      const messagesSnapshot = await db.collection('messages').orderBy('timestamp').get();
-      const messagesContainer = document.getElementById("messages");
-      messagesContainer.innerHTML = '';
-      messagesSnapshot.forEach(doc => {
-        const messageData = doc.data();
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('chat-message');
-        messageElement.innerHTML = `<span class="username">${messageData.username}:</span> ${messageData.message}`;
-        messagesContainer.appendChild(messageElement);
-      });
-    }
-
-    // 이모지 토글 함수
-    function toggleEmoji() {
-      const emojiContainer = document.getElementById("emoji-container");
-      emojiContainer.style.display = emojiContainer.style.display === 'block' ? 'none' : 'block';
-    }
-
-    // 이모지 삽입 함수
-    function insertEmoji(emojiName) {
-      const emojiInput = document.getElementById("chat-input");
-      emojiInput.value += `<img src="${emojiName}.jpg" class="emoji">`; // 이모지 삽입
-      toggleEmoji(); // 이모지 선택창 숨기기
-    }
-  </script>
 </body>
 </html>
