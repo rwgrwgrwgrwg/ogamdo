@@ -9,7 +9,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
   <style>
-    /* 스타일링 */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -18,94 +17,66 @@
       flex-direction: column;
       height: 100vh;
     }
-
     #chat-container {
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      padding: 20px;
+      flex: 1;
       overflow-y: auto;
+      padding: 20px;
     }
-
     .chat-message {
-      margin: 10px 0;
-      padding: 10px;
+      margin: 5px;
+      padding: 5px;
       border-radius: 5px;
       background-color: #f1f1f1;
     }
-
-    .username {
-      font-weight: bold;
-    }
-
-    .chat-input-container {
-      display: flex;
-      align-items: center;
+    #message-box {
       position: fixed;
       bottom: 10px;
-      left: 10px;
-      right: 10px;
-      background-color: white;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       padding: 10px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
-    }
-
-    #chat-input {
-      flex-grow: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
+      background-color: #fff;
       border-radius: 5px;
-      margin-right: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
-
+    #chat-input {
+      width: 80%;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
     .emoji {
       width: 30px;
       height: 30px;
       cursor: pointer;
-    }
-
-    #emoji-container {
-      display: none;
-      position: absolute;
-      bottom: 50px;
-      left: 10px;
-      background-color: #fff;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      padding: 5px;
-      border-radius: 5px;
-      z-index: 1001;
-    }
-
-    .emoji-container img {
-      width: 30px;
-      height: 30px;
-      margin: 5px;
-      cursor: pointer;
+      margin-left: 10px;
     }
   </style>
 </head>
 <body>
 
-  <h1 style="text-align: center;">채팅 앱</h1>
+  <h1>채팅 앱</h1>
 
-  <div id="chat-container">
+  <div id="username-container">
+    <input type="text" id="username" placeholder="사용자명" required>
+    <button onclick="startChat()">채팅 시작</button>
+  </div>
+
+  <div id="chat-container" style="display:none;">
     <div id="messages"></div>
-  </div>
-
-  <div class="chat-input-container">
-    <div id="username" style="font-weight: bold; margin-right: 20px;">Username</div>
-    <input type="text" id="chat-input" placeholder="메시지를 입력하세요..." />
-    <button onclick="toggleEmoji()">😊</button>
-    <button onclick="sendMessage()">전송</button>
-  </div>
-
-  <div id="emoji-container">
-    <img src="yoon1.jpg" class="emoji" onclick="insertEmoji('yoon1')">
-    <img src="yoon2.jpg" class="emoji" onclick="insertEmoji('yoon2')">
-    <img src="yoon3.jpg" class="emoji" onclick="insertEmoji('yoon3')">
-    <!-- 이모지를 추가하려면 이곳에 이미지 태그를 추가 -->
+    <div id="message-box">
+      <textarea id="chat-input" placeholder="메시지를 입력하세요..." rows="3"></textarea>
+      <button onclick="sendMessage()">전송</button>
+      <button onclick="toggleEmoji()">이모지</button>
+    </div>
+    <div id="emoji-container" style="display: none;">
+      <img src="yoon1.jpg" class="emoji" onclick="insertEmoji('yoon1')">
+      <img src="yoon2.jpg" class="emoji" onclick="insertEmoji('yoon2')">
+      <img src="yoon3.jpg" class="emoji" onclick="insertEmoji('yoon3')">
+      <!-- 필요한 이모지 추가 -->
+    </div>
   </div>
 
   <script>
@@ -120,18 +91,29 @@
       measurementId: "G-NJQLPC7KJS"
     };
     const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
     const db = firebase.firestore();
 
-    let currentUser = null;
+    let currentUserName = "";
+
+    // 채팅 시작 함수
+    function startChat() {
+      const username = document.getElementById("username").value;
+      if (username.trim() !== "") {
+        currentUserName = username;
+        document.getElementById("username-container").style.display = 'none';
+        document.getElementById("chat-container").style.display = 'block';
+        loadMessages();
+      } else {
+        alert("사용자명을 입력해주세요.");
+      }
+    }
 
     // 메시지 전송 함수
     async function sendMessage() {
       const message = document.getElementById("chat-input").value;
       if (message.trim() !== "") {
         await db.collection('messages').add({
-          userId: currentUser.uid,
-          username: currentUser.displayName || "Anonymous",
+          username: currentUserName,
           message: message,
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
@@ -166,20 +148,6 @@
       emojiInput.value += `<img src="${emojiName}.jpg" class="emoji">`; // 이모지 삽입
       toggleEmoji(); // 이모지 선택창 숨기기
     }
-
-    // Firebase 로그인 상태 확인
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        currentUser = user;
-        document.getElementById("username").innerText = user.displayName || "Anonymous";
-        loadMessages();
-      }
-    });
-
-    // Firebase 로그인 예시 (로그인 정보가 필요함)
-    auth.signInWithEmailAndPassword("user@example.com", "password").catch(error => {
-      console.error(error.message);
-    });
   </script>
 </body>
 </html>
