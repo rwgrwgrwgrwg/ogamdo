@@ -9,64 +9,103 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
   <style>
+    /* 스타일링 */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
+
     #chat-container {
-      display: none;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
     }
+
     .chat-message {
-      margin: 5px;
-      padding: 5px;
+      margin: 10px 0;
+      padding: 10px;
       border-radius: 5px;
       background-color: #f1f1f1;
     }
+
     .username {
       font-weight: bold;
     }
+
+    .chat-input-container {
+      display: flex;
+      align-items: center;
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      background-color: white;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    #chat-input {
+      flex-grow: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+
     .emoji {
       width: 30px;
       height: 30px;
       cursor: pointer;
     }
+
     #emoji-container {
       display: none;
+      position: absolute;
+      bottom: 50px;
+      left: 10px;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      padding: 5px;
+      border-radius: 5px;
+      z-index: 1001;
+    }
+
+    .emoji-container img {
+      width: 30px;
+      height: 30px;
+      margin: 5px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <h1>채팅 앱</h1>
-
-  <div id="auth-container">
-    <h2>회원가입 / 로그인</h2>
-    <div id="signup-container">
-      <input type="email" id="signup-email" placeholder="이메일" required>
-      <input type="password" id="signup-password" placeholder="비밀번호" required>
-      <input type="text" id="signup-username" placeholder="사용자명" required>
-      <button id="signup-btn">회원가입</button>
-    </div>
-    <div id="login-container">
-      <input type="email" id="login-email" placeholder="이메일" required>
-      <input type="password" id="login-password" placeholder="비밀번호" required>
-      <button id="login-btn">로그인</button>
-    </div>
-  </div>
+  <h1 style="text-align: center;">채팅 앱</h1>
 
   <div id="chat-container">
-    <h2>채팅방</h2>
     <div id="messages"></div>
-    <textarea id="chat-input" placeholder="메시지를 입력하세요..." rows="3"></textarea>
+  </div>
+
+  <div class="chat-input-container">
+    <div id="username" style="font-weight: bold; margin-right: 20px;">Username</div>
+    <input type="text" id="chat-input" placeholder="메시지를 입력하세요..." />
+    <button onclick="toggleEmoji()">😊</button>
     <button onclick="sendMessage()">전송</button>
-    <button onclick="toggleEmoji()">이모지</button>
-    <div id="emoji-container">
-      <img src="yoon1.jpg" class="emoji" onclick="insertEmoji('yoon1')">
-      <img src="yoon2.jpg" class="emoji" onclick="insertEmoji('yoon2')">
-      <img src="yoon3.jpg" class="emoji" onclick="insertEmoji('yoon3')">
-      <!-- 이모지 추가 가능 -->
-    </div>
+  </div>
+
+  <div id="emoji-container">
+    <img src="yoon1.jpg" class="emoji" onclick="insertEmoji('yoon1')">
+    <img src="yoon2.jpg" class="emoji" onclick="insertEmoji('yoon2')">
+    <img src="yoon3.jpg" class="emoji" onclick="insertEmoji('yoon3')">
+    <!-- 이모지를 추가하려면 이곳에 이미지 태그를 추가 -->
   </div>
 
   <script>
@@ -85,48 +124,6 @@
     const db = firebase.firestore();
 
     let currentUser = null;
-
-    // 회원가입 함수
-    document.getElementById("signup-btn").addEventListener("click", async function() {
-      const email = document.getElementById("signup-email").value;
-      const password = document.getElementById("signup-password").value;
-      const username = document.getElementById("signup-username").value;
-
-      try {
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        const user = userCredential.user;
-        await db.collection('users').doc(user.uid).set({
-          username: username,
-          email: email
-        });
-        console.log("회원가입 성공:", user);
-        showChatUI();
-      } catch (error) {
-        console.error("회원가입 오류:", error.message);
-      }
-    });
-
-    // 로그인 함수
-    document.getElementById("login-btn").addEventListener("click", async function() {
-      const email = document.getElementById("login-email").value;
-      const password = document.getElementById("login-password").value;
-
-      try {
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        currentUser = userCredential.user;
-        console.log("로그인 성공:", currentUser);
-        showChatUI();
-      } catch (error) {
-        console.error("로그인 오류:", error.message);
-      }
-    });
-
-    // 채팅 화면 표시
-    function showChatUI() {
-      document.getElementById("auth-container").style.display = 'none';
-      document.getElementById("chat-container").style.display = 'block';
-      loadMessages();
-    }
 
     // 메시지 전송 함수
     async function sendMessage() {
@@ -169,6 +166,20 @@
       emojiInput.value += `<img src="${emojiName}.jpg" class="emoji">`; // 이모지 삽입
       toggleEmoji(); // 이모지 선택창 숨기기
     }
+
+    // Firebase 로그인 상태 확인
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        document.getElementById("username").innerText = user.displayName || "Anonymous";
+        loadMessages();
+      }
+    });
+
+    // Firebase 로그인 예시 (로그인 정보가 필요함)
+    auth.signInWithEmailAndPassword("user@example.com", "password").catch(error => {
+      console.error(error.message);
+    });
   </script>
 </body>
 </html>
