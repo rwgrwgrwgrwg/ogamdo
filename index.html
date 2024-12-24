@@ -1,9 +1,86 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Chat App</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>나의 웹사이트</title>
+  <link rel="stylesheet" href="styles.css"> <!-- 스타일시트 연결 -->
 </head>
 <body>
-  <h1>Welcome to Chat App</h1>
+  <header>
+    <h1>환영합니다! 나의 웹사이트에 오신 것을 환영합니다.</h1>
+  </header>
+
+  <section id="loginSection">
+    <h2>로그인 또는 회원가입</h2>
+
+    <!-- 이메일 입력 필드 -->
+    <input type="email" id="email" placeholder="이메일" required>
+
+    <!-- 비밀번호 입력 필드 -->
+    <input type="password" id="password" placeholder="비밀번호" required>
+
+    <!-- 로그인 버튼 -->
+    <button id="loginBtn">로그인</button>
+
+    <!-- 회원가입 버튼 -->
+    <button id="signUpBtn">회원가입</button>
+
+    <!-- 오류 메시지 표시 -->
+    <p id="error-message" style="color: red;"></p>
+  </section>
+
+  <footer>
+    <p>© 2024 나의 웹사이트</p>
+  </footer>
+
+  <script type="module">
+    // Firebase SDK 임포트
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+    // Firebase 설정
+    const firebaseConfig = {
+      apiKey: "AIzaSyA1O1mJelZT2uZH0308xe3IGNMicJQQQok",
+      authDomain: "ogamdo-131e5.firebaseapp.com",
+      projectId: "ogamdo-131e5",
+      storageBucket: "ogamdo-131e5.firebasestorage.app",
+      messagingSenderId: "662198194109",
+      appId: "1:662198194109:web:277064ed01fb3c64b4ccd4",
+      measurementId: "G-NJQLPC7KJS"
+    };
+
+    // Firebase 초기화
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // 로그인 함수
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const errorMessage = document.getElementById("error-message");
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        alert("로그인 성공!");
+      } catch (error) {
+        errorMessage.textContent = "로그인 실패: " + error.message;
+      }
+    });
+
+    // 회원가입 함수
+    document.getElementById("signUpBtn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const errorMessage = document.getElementById("error-message");
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert("회원가입 성공!");
+      } catch (error) {
+        errorMessage.textContent = "회원가입 실패: " + error.message;
+      }
+    });
+  </script>
 </body>
 </html>
