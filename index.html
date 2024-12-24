@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>채팅 앱</title>
-  
+
   <!-- Firebase 모듈 방식으로 로드 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
@@ -30,7 +30,7 @@
     let currentUserName = ""; // 여기서 초기화
 
     // 채팅 시작 함수
-    function startChat() {
+    window.startChat = function startChat() {
       const username = document.getElementById("username").value;
       if (username.trim() !== "") {
         currentUserName = username; // 사용자명 저장
@@ -40,10 +40,10 @@
       } else {
         alert("사용자명을 입력해주세요.");
       }
-    }
+    };
 
     // 메시지 전송 함수
-    async function sendMessage() {
+    window.sendMessage = async function sendMessage() {
       const message = document.getElementById("chat-input").value;
       if (message.trim() !== "") {
         try {
@@ -58,10 +58,10 @@
           console.error("메시지 전송 오류:", error);
         }
       }
-    }
+    };
 
     // 메시지 로드 함수
-    async function loadMessages() {
+    window.loadMessages = async function loadMessages() {
       try {
         const querySnapshot = await getDocs(collection(db, 'messages'));
         const messagesContainer = document.getElementById("messages");
@@ -76,20 +76,21 @@
       } catch (error) {
         console.error("메시지 로드 오류:", error);
       }
-    }
+    };
 
     // 이모지 토글 함수
-    function toggleEmoji() {
+    window.toggleEmoji = function toggleEmoji() {
       const emojiContainer = document.getElementById("emoji-container");
       emojiContainer.style.display = emojiContainer.style.display === 'block' ? 'none' : 'block';
-    }
+    };
 
     // 이모지 삽입 함수
-    function insertEmoji(emojiName) {
+    window.insertEmoji = function insertEmoji(emojiName) {
       const emojiInput = document.getElementById("chat-input");
       emojiInput.value += `<img src="${emojiName}.jpg" class="emoji">`; // 이모지 삽입
       toggleEmoji(); // 이모지 선택창 숨기기
-    }
+    };
+
   </script>
 </head>
 <body>
