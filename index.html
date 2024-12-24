@@ -98,10 +98,12 @@
     // 채팅 시작 함수
     function startChat() {
       const username = document.getElementById("username").value;
+      console.log("사용자명 입력:", username); // 디버깅용
       if (username.trim() !== "") {
         currentUserName = username;
         document.getElementById("username-container").style.display = 'none';
         document.getElementById("chat-container").style.display = 'block';
+        console.log("채팅 UI 표시됨."); // 디버깅용
         loadMessages();
       } else {
         alert("사용자명을 입력해주세요.");
@@ -112,6 +114,7 @@
     async function sendMessage() {
       const message = document.getElementById("chat-input").value;
       if (message.trim() !== "") {
+        console.log("메시지 전송:", message); // 디버깅용
         await db.collection('messages').add({
           username: currentUserName,
           message: message,
@@ -124,6 +127,7 @@
 
     // 메시지 로드 함수
     async function loadMessages() {
+      console.log("메시지 로드 시작"); // 디버깅용
       const messagesSnapshot = await db.collection('messages').orderBy('timestamp').get();
       const messagesContainer = document.getElementById("messages");
       messagesContainer.innerHTML = '';
