@@ -4,14 +4,95 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>채팅 앱</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
+  <style>
+    /* 스타일링은 나중에 추가할 수 있습니다. */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
 
-  <!-- Firebase 모듈 방식으로 로드 -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getStorage } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+    #chat-container {
+      display: none;
+    }
 
+    .chat-message {
+      margin: 5px;
+      padding: 5px;
+      border-radius: 5px;
+      background-color: #f1f1f1;
+    }
+
+    .username {
+      font-weight: bold;
+    }
+
+    .emoji {
+      width: 100px; /* 미리보기 크기: 원본 크기의 약 7% */
+      height: 100px;
+      cursor: pointer;
+    }
+
+    .chat-message img {
+      width: 360px; /* 실제 이모지 크기: 원본 크기의 약 25% */
+      height: 360px;
+    }
+
+    #emoji-container {
+      display: none;
+      flex-wrap: wrap;
+    }
+
+    #emoji-container img {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>채팅 앱</h1>
+
+  <div id="auth-container">
+    <h2>채팅 시작</h2>
+    <input type="text" id="username" placeholder="사용자명" required>
+    <button onclick="startChat()">채팅 시작</button>
+  </div>
+
+  <div id="chat-container">
+    <h2>채팅방</h2>
+    <div id="messages"></div>
+    <textarea id="chat-input" placeholder="메시지를 입력하세요..." rows="3"></textarea>
+    <button onclick="sendMessage()">전송</button>
+    <button onclick="toggleEmoji()">이모지</button>
+    <div id="emoji-container">
+      <img src="yoon1.jpg" class="emoji" onclick="insertEmoji('yoon1')">
+      <img src="yoon2.jpg" class="emoji" onclick="insertEmoji('yoon2')">
+      <img src="yoon3.jpg" class="emoji" onclick="insertEmoji('yoon3')">
+      <img src="yoon4.jpg" class="emoji" onclick="insertEmoji('yoon4')">
+      <img src="yoon5.jpg" class="emoji" onclick="insertEmoji('yoon5')">
+      <img src="yoon6.jpg" class="emoji" onclick="insertEmoji('yoon6')">
+      <img src="yoon7.jpg" class="emoji" onclick="insertEmoji('yoon7')">
+      <img src="yoon8.jpg" class="emoji" onclick="insertEmoji('yoon8')">
+      <img src="yoon9.jpg" class="emoji" onclick="insertEmoji('yoon9')">
+      <img src="yoon10.jpg" class="emoji" onclick="insertEmoji('yoon10')">
+      <img src="yoon11.jpg" class="emoji" onclick="insertEmoji('yoon11')">
+      <img src="yoon12.jpg" class="emoji" onclick="insertEmoji('yoon12')">
+      <img src="yoon13.jpg" class="emoji" onclick="insertEmoji('yoon13')">
+      <img src="yoon14.jpg" class="emoji" onclick="insertEmoji('yoon14')">
+      <img src="yoon15.jpg" class="emoji" onclick="insertEmoji('yoon15')">
+      <img src="yoon16.jpg" class="emoji" onclick="insertEmoji('yoon16')">
+      <img src="yoon17.jpg" class="emoji" onclick="insertEmoji('yoon17')">
+      <img src="yoon18.jpg" class="emoji" onclick="insertEmoji('yoon18')">
+      <img src="yoon19.jpg" class="emoji" onclick="insertEmoji('yoon19')">
+      <img src="yoon20.jpg" class="emoji" onclick="insertEmoji('yoon20')">
+    </div>
+  </div>
+
+  <script>
     // Firebase 설정
     const firebaseConfig = {
       apiKey: "AIzaSyA1O1mJelZT2uZH0308xe3IGNMicJQQQok",
@@ -23,99 +104,64 @@
       measurementId: "G-NJQLPC7KJS"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-    let currentUserName = ""; // 여기서 초기화
+    let currentUserName = '';
 
     // 채팅 시작 함수
-    window.startChat = function startChat() {
-      const username = document.getElementById("username").value;
-      if (username.trim() !== "") {
-        currentUserName = username; // 사용자명 저장
-        document.getElementById("username-container").style.display = 'none';
+    function startChat() {
+      currentUserName = document.getElementById("username").value;
+      if (currentUserName.trim() !== "") {
+        document.getElementById("auth-container").style.display = 'none';
         document.getElementById("chat-container").style.display = 'block';
         loadMessages();
       } else {
         alert("사용자명을 입력해주세요.");
       }
-    };
+    }
 
     // 메시지 전송 함수
-    window.sendMessage = async function sendMessage() {
+    async function sendMessage() {
       const message = document.getElementById("chat-input").value;
       if (message.trim() !== "") {
-        try {
-          await addDoc(collection(db, 'messages'), {
-            username: currentUserName,
-            message: message,
-            timestamp: new Date().toISOString() // firestore timestamp
-          });
-          document.getElementById("chat-input").value = ''; // 입력칸 비우기
-          loadMessages(); // 새로 고침
-        } catch (error) {
-          console.error("메시지 전송 오류:", error);
-        }
+        await db.collection('messages').add({
+          username: currentUserName,
+          message: message,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById("chat-input").value = ''; // 입력칸 비우기
+        loadMessages();
       }
-    };
+    }
 
     // 메시지 로드 함수
-    window.loadMessages = async function loadMessages() {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'messages'));
-        const messagesContainer = document.getElementById("messages");
-        messagesContainer.innerHTML = '';
-        querySnapshot.forEach(doc => {
-          const messageData = doc.data();
-          const messageElement = document.createElement('div');
-          messageElement.classList.add('chat-message');
-          messageElement.innerHTML = `<span class="username">${messageData.username}:</span> ${messageData.message}`;
-          messagesContainer.appendChild(messageElement);
-        });
-      } catch (error) {
-        console.error("메시지 로드 오류:", error);
-      }
-    };
+    async function loadMessages() {
+      const messagesSnapshot = await db.collection('messages').orderBy('timestamp').get();
+      const messagesContainer = document.getElementById("messages");
+      messagesContainer.innerHTML = '';
+      messagesSnapshot.forEach(doc => {
+        const messageData = doc.data();
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('chat-message');
+        messageElement.innerHTML = `<span class="username">${messageData.username}:</span> ${messageData.message}`;
+        messagesContainer.appendChild(messageElement);
+      });
+    }
 
     // 이모지 토글 함수
-    window.toggleEmoji = function toggleEmoji() {
+    function toggleEmoji() {
       const emojiContainer = document.getElementById("emoji-container");
       emojiContainer.style.display = emojiContainer.style.display === 'block' ? 'none' : 'block';
-    };
+    }
 
     // 이모지 삽입 함수
-    window.insertEmoji = function insertEmoji(emojiName) {
+    function insertEmoji(emojiName) {
       const emojiInput = document.getElementById("chat-input");
       emojiInput.value += `<img src="${emojiName}.jpg" class="emoji">`; // 이모지 삽입
       toggleEmoji(); // 이모지 선택창 숨기기
-    };
-
+    }
   </script>
-</head>
-<body>
-
-  <h1>채팅 앱</h1>
-
-  <div id="username-container">
-    <input type="text" id="username" placeholder="사용자명" required>
-    <button onclick="startChat()">채팅 시작</button>
-  </div>
-
-  <div id="chat-container" style="display:none;">
-    <div id="messages"></div>
-    <div id="message-box">
-      <textarea id="chat-input" placeholder="메시지를 입력하세요..." rows="3"></textarea>
-      <button onclick="sendMessage()">전송</button>
-      <button onclick="toggleEmoji()">이모지</button>
-    </div>
-    <div id="emoji-container" style="display: none;">
-      <img src="yoon1.jpg" class="emoji" onclick="insertEmoji('yoon1')">
-      <img src="yoon2.jpg" class="emoji" onclick="insertEmoji('yoon2')">
-      <img src="yoon3.jpg" class="emoji" onclick="insertEmoji('yoon3')">
-      <!-- 필요한 이모지 추가 -->
-    </div>
-  </div>
-
 </body>
 </html>
