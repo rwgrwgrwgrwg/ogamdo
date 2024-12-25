@@ -7,7 +7,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA1O1mJelZT2uZH0308xe3IGNMicJQQQok",
@@ -43,20 +43,22 @@
           await addDoc(collection(db, 'messages'), {
             username: currentUserName,
             message: message,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString() // Firestore timestamp
           });
           document.getElementById("chat-input").value = '';
-          loadMessages();
         } catch (error) {
           console.error("메시지 전송 오류:", error);
         }
       }
     };
 
-    window.loadMessages = async function loadMessages() {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'messages'));
-        const messagesContainer = document.getElementById("messages");
+    // 실시간 메시지 로드 함수
+    window.loadMessages = function loadMessages() {
+      const messagesContainer = document.getElementById("messages");
+      const messagesQuery = query(collection(db, 'messages'), orderBy("timestamp"));
+      
+      // 실시간 업데이트
+      onSnapshot(messagesQuery, (querySnapshot) => {
         messagesContainer.innerHTML = '';
         querySnapshot.forEach(doc => {
           const messageData = doc.data();
@@ -65,9 +67,10 @@
           messageElement.innerHTML = `<span class="username">${messageData.username}:</span> ${messageData.message}`;
           messagesContainer.appendChild(messageElement);
         });
-      } catch (error) {
-        console.error("메시지 로드 오류:", error);
-      }
+
+        // 최신 메시지가 보이도록 스크롤 위치 조정
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      });
     };
 
     window.toggleEmoji = function toggleEmoji() {
@@ -81,6 +84,34 @@
       toggleEmoji();
     };
   </script>
+
+  <style>
+    #emoji-container img.preview {
+      width: 16px;
+      height: 16px;
+      margin: 5px;
+    }
+
+    #messages {
+      height: 300px;
+      overflow-y: scroll;
+      margin-bottom: 10px;
+    }
+
+    .chat-message {
+      margin-bottom: 10px;
+    }
+
+    .username {
+      font-weight: bold;
+    }
+
+    .emoji {
+      width: 120px;
+      height: 120px;
+      vertical-align: middle;
+    }
+  </style>
 
   <style>
     #emoji-container img.preview {
