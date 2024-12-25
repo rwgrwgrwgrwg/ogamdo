@@ -34,7 +34,7 @@ h1 {
     border-bottom: 1px solid #ddd;
     background: #f9f9f9;
     overflow-y: auto; /* 스크롤 활성화 */
-    max-height: calc(100vh - 150px); /* 고정된 최대 높이 설정 */
+    max-height: calc(85vh - 150px); /* 메시지 영역의 최대 높이를 화면에서 입력칸 높이를 제외한 크기로 설정 */
     scroll-behavior: smooth;
 }
 
@@ -69,8 +69,7 @@ h1 {
     align-items: center; /* 버튼과 입력칸 세로 정렬 */
     padding: 10px;
     background: #fff;
-    position: absolute;
-    bottom: 0;
+    position: relative; /* 위치 조정 */
     width: 100%;
     box-sizing: border-box; /* 내부 패딩 포함 */
     gap: 10px; /* 간격 추가 */
