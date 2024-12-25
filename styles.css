@@ -87,7 +87,7 @@ button {
     padding: 10px;
     border: none;
     border-radius: 5px;
-    font-size: 14px;
+    font-size: 20px;
     cursor: pointer;
     background-color: #f1f1f1;
     flex-shrink: 0; /* 버튼 크기를 줄이지 않음 */
