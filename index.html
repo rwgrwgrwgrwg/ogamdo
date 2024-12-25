@@ -5,14 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>채팅 앱</title>
 
-  <!-- Firebase 모듈 방식으로 로드 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getStorage } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-    // Firebase 설정
     const firebaseConfig = {
       apiKey: "AIzaSyA1O1mJelZT2uZH0308xe3IGNMicJQQQok",
       authDomain: "ogamdo-131e5.firebaseapp.com",
@@ -24,16 +20,14 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentUserName = ""; // 여기서 초기화
+    let currentUserName = "";
 
-    // 채팅 시작 함수
     window.startChat = function startChat() {
       const username = document.getElementById("username").value;
       if (username.trim() !== "") {
-        currentUserName = username; // 사용자명 저장
+        currentUserName = username;
         document.getElementById("username-container").style.display = 'none';
         document.getElementById("chat-container").style.display = 'block';
         loadMessages();
@@ -42,7 +36,6 @@
       }
     };
 
-    // 메시지 전송 함수
     window.sendMessage = async function sendMessage() {
       const message = document.getElementById("chat-input").value;
       if (message.trim() !== "") {
@@ -50,17 +43,16 @@
           await addDoc(collection(db, 'messages'), {
             username: currentUserName,
             message: message,
-            timestamp: new Date().toISOString() // firestore timestamp
+            timestamp: new Date().toISOString()
           });
-          document.getElementById("chat-input").value = ''; // 입력칸 비우기
-          loadMessages(); // 새로 고침
+          document.getElementById("chat-input").value = '';
+          loadMessages();
         } catch (error) {
           console.error("메시지 전송 오류:", error);
         }
       }
     };
 
-    // 메시지 로드 함수
     window.loadMessages = async function loadMessages() {
       try {
         const querySnapshot = await getDocs(collection(db, 'messages'));
@@ -78,37 +70,25 @@
       }
     };
 
-    // 이모지 토글 함수
     window.toggleEmoji = function toggleEmoji() {
       const emojiContainer = document.getElementById("emoji-container");
       emojiContainer.style.display = emojiContainer.style.display === 'block' ? 'none' : 'block';
     };
 
-    // 이모지 삽입 함수
     window.insertEmoji = function insertEmoji(emojiName) {
       const emojiInput = document.getElementById("chat-input");
-      emojiInput.value += `<img src="${emojiName}.jpg" class="emoji">`; // 이모지 삽입
-      toggleEmoji(); // 이모지 선택창 숨기기
+      emojiInput.value += `<img src="${emojiName}.jpg" class="emoji" style="width:120px; height:120px; vertical-align:middle;">`;
+      toggleEmoji();
     };
   </script>
 
   <style>
-    /* 이모지 미리보기 크기 설정 */
     #emoji-container img.preview {
-      width: 16px;
-      height: 16px;
+      width: 40px;
+      height: 40px;
       margin: 5px;
     }
 
-    /* 실제 이모지 크기 설정 */
-    #emoji-container img.emoji {
-      width: 24px;
-      height: 24px;
-      margin: 5px;
-      cursor: pointer;
-    }
-
-    /* 채팅창 디자인 */
     #messages {
       height: 300px;
       overflow-y: scroll;
@@ -122,10 +102,15 @@
     .username {
       font-weight: bold;
     }
+
+    .emoji {
+      width: 240px;
+      height: 240px;
+      vertical-align: middle;
+    }
   </style>
 </head>
 <body>
-
   <h1>채팅 앱</h1>
 
   <div id="username-container">
@@ -141,7 +126,6 @@
       <button onclick="toggleEmoji()">이모지</button>
     </div>
     <div id="emoji-container" style="display: none;">
-      <!-- 이모지 미리보기 -->
       <img src="yoon1.jpg" class="preview" onclick="insertEmoji('yoon1')">
       <img src="yoon2.jpg" class="preview" onclick="insertEmoji('yoon2')">
       <img src="yoon3.jpg" class="preview" onclick="insertEmoji('yoon3')">
@@ -162,9 +146,7 @@
       <img src="yoon18.jpg" class="preview" onclick="insertEmoji('yoon18')">
       <img src="yoon19.jpg" class="preview" onclick="insertEmoji('yoon19')">
       <img src="yoon20.jpg" class="preview" onclick="insertEmoji('yoon20')">
-      <!-- 필요한 이모지 추가 -->
     </div>
   </div>
-
 </body>
 </html>
