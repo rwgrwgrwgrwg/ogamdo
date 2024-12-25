@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>채팅 앱</title>
+  <title>ogdcinside</title>
 
+  <!-- CSS 파일 연결 -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase 관련 스크립트 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
@@ -43,7 +47,7 @@
           await addDoc(collection(db, 'messages'), {
             username: currentUserName,
             message: message,
-            timestamp: new Date().toISOString() // Firestore timestamp
+            timestamp: new Date().toISOString()
           });
           document.getElementById("chat-input").value = '';
         } catch (error) {
@@ -52,12 +56,10 @@
       }
     };
 
-    // 실시간 메시지 로드 함수
     window.loadMessages = function loadMessages() {
       const messagesContainer = document.getElementById("messages");
       const messagesQuery = query(collection(db, 'messages'), orderBy("timestamp"));
-      
-      // 실시간 업데이트
+
       onSnapshot(messagesQuery, (querySnapshot) => {
         messagesContainer.innerHTML = '';
         querySnapshot.forEach(doc => {
@@ -68,7 +70,6 @@
           messagesContainer.appendChild(messageElement);
         });
 
-        // 최신 메시지가 보이도록 스크롤 위치 조정
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
       });
     };
@@ -80,69 +81,13 @@
 
     window.insertEmoji = function insertEmoji(emojiName) {
       const emojiInput = document.getElementById("chat-input");
-      emojiInput.value += `<img src="${emojiName}.jpg" class="emoji" style="width:120px; height:120px; vertical-align:middle;">`;
+      emojiInput.value += `<img src="${emojiName}.jpg" class="emoji">`;
       toggleEmoji();
     };
   </script>
-
-  <style>
-    #emoji-container img.preview {
-      width: 16px;
-      height: 16px;
-      margin: 5px;
-    }
-
-    #messages {
-      height: 300px;
-      overflow-y: scroll;
-      margin-bottom: 10px;
-    }
-
-    .chat-message {
-      margin-bottom: 10px;
-    }
-
-    .username {
-      font-weight: bold;
-    }
-
-    .emoji {
-      width: 120px;
-      height: 120px;
-      vertical-align: middle;
-    }
-  </style>
-
-  <style>
-    #emoji-container img.preview {
-      width: 40px;
-      height: 40px;
-      margin: 5px;
-    }
-
-    #messages {
-      height: 300px;
-      overflow-y: scroll;
-      margin-bottom: 10px;
-    }
-
-    .chat-message {
-      margin-bottom: 10px;
-    }
-
-    .username {
-      font-weight: bold;
-    }
-
-    .emoji {
-      width: 240px;
-      height: 240px;
-      vertical-align: middle;
-    }
-  </style>
 </head>
 <body>
-  <h1>채팅 앱</h1>
+  <h1>오감도 갤러리</h1>
 
   <div id="username-container">
     <input type="text" id="username" placeholder="사용자명" required>
