@@ -64,7 +64,16 @@
           const messageData = doc.data();
           const messageElement = document.createElement('div');
           messageElement.classList.add('chat-message');
-          messageElement.innerHTML = `<span class="username">${messageData.username}:</span> ${messageData.message}`;
+
+          // 이모지 이름 변환
+          let messageText = messageData.message;
+          const emojiRegex = /:(\w+):/g; // :로 시작하고, 알파벳+숫자 조합
+
+          messageText = messageText.replace(emojiRegex, (match, emojiName) => {
+            return `<img src="${emojiName}.jpg" class="emoji">`;  // 이모지 이름에 맞는 이미지를 삽입
+          });
+
+          messageElement.innerHTML = `<span class="username">${messageData.username}:</span> ${messageText}`;
           messagesContainer.appendChild(messageElement);
         });
 
@@ -80,7 +89,7 @@
 
     window.insertEmoji = function insertEmoji(emojiName) {
       const emojiInput = document.getElementById("chat-input");
-      emojiInput.value += `<img src="${emojiName}.jpg" class="emoji">`;
+      emojiInput.value += `:${emojiName}:`;  // 이모지 이름으로 텍스트 삽입
       toggleEmoji();
     };
   </script>
@@ -101,26 +110,26 @@
       <button onclick="toggleEmoji()">이모지</button>
     </div>
     <div id="emoji-container" style="display: none;">
-      <img src="yoon1.jpg" class="preview" onclick="insertEmoji('yoon1')">
-      <img src="yoon2.jpg" class="preview" onclick="insertEmoji('yoon2')">
-      <img src="yoon3.jpg" class="preview" onclick="insertEmoji('yoon3')">
-      <img src="yoon4.jpg" class="preview" onclick="insertEmoji('yoon4')">
-      <img src="yoon5.jpg" class="preview" onclick="insertEmoji('yoon5')">
-      <img src="yoon6.jpg" class="preview" onclick="insertEmoji('yoon6')">
-      <img src="yoon7.jpg" class="preview" onclick="insertEmoji('yoon7')">
-      <img src="yoon8.jpg" class="preview" onclick="insertEmoji('yoon8')">
-      <img src="yoon9.jpg" class="preview" onclick="insertEmoji('yoon9')">
-      <img src="yoon10.jpg" class="preview" onclick="insertEmoji('yoon10')">
-      <img src="yoon11.jpg" class="preview" onclick="insertEmoji('yoon11')">
-      <img src="yoon12.jpg" class="preview" onclick="insertEmoji('yoon12')">
-      <img src="yoon13.jpg" class="preview" onclick="insertEmoji('yoon13')">
-      <img src="yoon14.jpg" class="preview" onclick="insertEmoji('yoon14')">
-      <img src="yoon15.jpg" class="preview" onclick="insertEmoji('yoon15')">
-      <img src="yoon16.jpg" class="preview" onclick="insertEmoji('yoon16')">
-      <img src="yoon17.jpg" class="preview" onclick="insertEmoji('yoon17')">
-      <img src="yoon18.jpg" class="preview" onclick="insertEmoji('yoon18')">
-      <img src="yoon19.jpg" class="preview" onclick="insertEmoji('yoon19')">
-      <img src="yoon20.jpg" class="preview" onclick="insertEmoji('yoon20')">
+      <img src="yoon_jot_ga.jpg" class="preview" onclick="insertEmoji('yoon_jot_ga')">
+      <img src="yoon_jot_dem.jpg" class="preview" onclick="insertEmoji('yoon_jot_dem')">
+      <img src="yoon_frustration.jpg" class="preview" onclick="insertEmoji('yoon_frustration3')">
+      <img src="yoon_A0.jpg" class="preview" onclick="insertEmoji('yoon_A0')">
+      <img src="yoon_lightoff.jpg" class="preview" onclick="insertEmoji('yoon_lightoff')">
+      <img src="yoon_fuckingno.jpg" class="preview" onclick="insertEmoji('yoon_fuckingno')">
+      <img src="yoon_greatjob.jpg" class="preview" onclick="insertEmoji('yoon_greatjob')">
+      <img src="yoon_yourmom.jpg" class="preview" onclick="insertEmoji('yoon_yourmom')">
+      <img src="yoon_please.jpg" class="preview" onclick="insertEmoji('yoon_please')">
+      <img src="yoon_wtf.jpg" class="preview" onclick="insertEmoji('yoon_wtf')">
+      <img src="yoon_idk.jpg" class="preview" onclick="insertEmoji('yoon_idk')">
+      <img src="yoon_jiralno.jpg" class="preview" onclick="insertEmoji('yoon_jiralno')">
+      <img src="yoon_nonsense.jpg" class="preview" onclick="insertEmoji('yoon_nonsense')">
+      <img src="yoon_dragon.jpg" class="preview" onclick="insertEmoji('yoon_dragon')">
+      <img src="yoon_gaechu.jpg" class="preview" onclick="insertEmoji('yoon_gaechu')">
+      <img src="yoon_Tlqkf.jpg" class="preview" onclick="insertEmoji('yoon_Tlqkf')">
+      <img src="yoon_alive.jpg" class="preview" onclick="insertEmoji('yoon_alive')">
+      <img src="yoon_pee.jpg" class="preview" onclick="insertEmoji('yoon_pee')">
+      <img src="yoon_disorder.jpg" class="preview" onclick="insertEmoji('yoon_disorder')">
+      <img src="yoon_cant_follow.jpg" class="preview" onclick="insertEmoji('yoon_cant_follow')">
     </div>
   </div>
 </body>
