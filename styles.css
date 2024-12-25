@@ -5,90 +5,117 @@ body {
     padding: 0;
     background-color: #f4f4f9;
     color: #333;
-  }
-  
-  h1 {
+}
+
+h1 {
     text-align: center;
     color: #3B478C;
     margin: 20px 0;
-  }
-  
-  /* 채팅 컨테이너 */
-  #chat-container {
+}
+
+/* 채팅 컨테이너 */
+#chat-container {
     max-width: 800px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 50px);
+    height: 85vh; /* 화면 전체 높이를 사용 */
     border: 1px solid #ccc;
     border-radius: 10px;
     background: #fff;
-  }
-  
-  #messages {
+    position: relative;
+}
+
+
+/* 메시지 영역 (고정 크기 및 스크롤) */
+#messages {
     flex: 1;
     padding: 10px;
     border-bottom: 1px solid #ddd;
-    overflow-y: auto;
     background: #f9f9f9;
+    overflow-y: auto; /* 스크롤 활성화 */
+    max-height: calc(100vh - 150px); /* 고정된 최대 높이 설정 */
     scroll-behavior: smooth;
-  }
-  
-  .chat-message {
+}
+
+/* 채팅 메시지 */
+.chat-message {
     margin-bottom: 10px;
     padding: 10px;
     border-radius: 10px;
     max-width: 70%;
-  }
-  
-  .chat-message.my-message {
+}
+
+.chat-message.my-message {
     background-color: #e1ffc7;
     align-self: flex-end;
     text-align: right;
-  }
-  
-  .chat-message.other-message {
+}
+
+.chat-message.other-message {
     background-color: #f1f1f1;
     align-self: flex-start;
-  }
-  
-  .username {
+}
+
+.username {
     font-weight: bold;
     margin-bottom: 5px;
     display: block;
-  }
-  
-  /* 입력 영역 */
-  #message-box {
+}
+
+/* 입력 영역 */
+#message-box {
     display: flex;
+    align-items: center; /* 버튼과 입력칸 세로 정렬 */
     padding: 10px;
     background: #fff;
-  }
-  
-  #chat-input {
-    flex: 1;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    box-sizing: border-box; /* 내부 패딩 포함 */
+    gap: 10px; /* 간격 추가 */
+}
+
+#chat-input {
+    flex: 1; /* 입력 칸 너비를 가변적으로 설정 */
     border: 1px solid #ddd;
     border-radius: 5px;
     padding: 10px;
-    margin-right: 10px;
     font-size: 16px;
-  }
-  
-  button {
-    padding: 10px 15px;
+}
+
+button {
+    padding: 10px;
     border: none;
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 14px;
     cursor: pointer;
-  }
-  
-  button:hover {
+    background-color: #f1f1f1;
+    flex-shrink: 0; /* 버튼 크기를 줄이지 않음 */
+}
+
+button:hover {
     background-color: #3B478C;
     color: #fff;
-  }
-  
-  /* 이모지 컨테이너 */
-  #emoji-container {
+}
+
+/* 버튼 크기 */
+#send-button,
+#emoji-button {
+    width: 60px; /* 고정된 너비 */
+    height: 40px; /* 고정된 높이 */
+}
+
+#send-button {
+    order: 2; /* 전송 버튼 순서 조정 */
+}
+
+#emoji-button {
+    order: 1; /* 이모지 버튼 순서 조정 */
+}
+
+/* 이모지 컨테이너 위치 및 스타일 */
+#emoji-container {
     display: grid;
     grid-template-columns: repeat(10, 1fr);
     gap: 10px;
@@ -96,22 +123,41 @@ body {
     background: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 10px;
-  }
-  
-  #emoji-container img.preview {
-    width: 73px;
-    height: 73px;
+    position: absolute;
+    bottom: 110px; /* 메시지 입력창 위로 조정 */
+    width: calc(100% - 20px);
+    left: 10px;
+    display: none;
+}
+
+#emoji-container img.preview {
+    width: 50px;
+    height: 50px;
     cursor: pointer;
     transition: transform 0.2s ease;
-  }
-  
-  #emoji-container img.preview:hover {
+}
+
+#emoji-container img.preview:hover {
     transform: scale(1.2);
-  }
-  
-  .emoji {
+}
+
+/* 추가: .emoji 스타일 */
+.emoji {
     width: 200px;
     height: 200px;
     vertical-align: middle;
-  }
-  
+}
+
+/* 스크롤바 스타일 */
+#messages::-webkit-scrollbar {
+    width: 10px;
+}
+
+#messages::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+}
+
+#messages::-webkit-scrollbar-track {
+    background-color: #f4f4f9;
+}

@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ogdcinside</title>
 
-  <!-- CSS 파일 연결 -->
   <link rel="stylesheet" href="styles.css">
 
-  <!-- Firebase 관련 스크립트 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
@@ -70,6 +68,7 @@
           messagesContainer.appendChild(messageElement);
         });
 
+        // 자동으로 스크롤을 맨 아래로 내리기
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
       });
     };
@@ -97,7 +96,7 @@
   <div id="chat-container" style="display:none;">
     <div id="messages"></div>
     <div id="message-box">
-      <textarea id="chat-input" placeholder="메시지를 입력하세요..." rows="3"></textarea>
+      <textarea id="chat-input" placeholder="메시지를 입력하세요..." rows="3" onkeydown="if(event.key === 'Enter'){sendMessage(); return false;}"></textarea>
       <button onclick="sendMessage()">전송</button>
       <button onclick="toggleEmoji()">이모지</button>
     </div>
